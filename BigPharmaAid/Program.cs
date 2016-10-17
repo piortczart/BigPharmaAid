@@ -21,33 +21,46 @@ namespace BigPharmaAid
             //        Do the mixing of everything. Now there is a concrete with mixed in Catalyst?
             //        Make concretes from concretes?
 
-            var ings = Game02.GetIngredients();
+            var ings = new Ingredients(Game02.GetIngredients());
 
-            var ingsX = new Ingredients();
-            ingsX.IngredientsBla.AddRange(ings);
+            ings.AddWithNoSideEffects();
 
-            var best1 = ingsX.GetConcreteIngredients().Take(5).ToList();
 
-            ingsX.AddMixed();
+            ings.AddPossibleTransformations();
 
-            var best2 = ingsX.GetConcreteIngredients().Take(5).ToList();
-            ingsX.AddWithNoSideEffects();
-
-            var best3 = ingsX.GetConcreteIngredients().Take(5).ToList();
-
-            ingsX.AddMixed();
-            var best4 =
-                ingsX.GetConcreteIngredients()
-                    .GroupBy(i => i.MaxProfit.Item1)
-                    .Select(g => new {profit = g.Key, list = g.Distinct().ToList()})
-                    .ToList();
-
-            ConcreteIngredient bestest = best4[0].list[0];
-            var huh = String.Join(Environment.NewLine, bestest.DerivedFrom.GetOperations());
-            var heh = String.Join(Environment.NewLine, (IEnumerable<Effect>) bestest.Effects);
-
-            var hoho = huh + Environment.NewLine + heh;
             ;
+
+            ings.AddMixed();
+
+            ;
+
+            ings.AddWithNoSideEffects();
+
+            //var ingsX = new Ingredients();
+            //ingsX.IngredientsBla.AddRange(ings);
+
+            //var best1 = ingsX.GetConcreteIngredients().Take(5).ToList();
+
+            //ingsX.AddMixed();
+
+            //var best2 = ingsX.GetConcreteIngredients().Take(5).ToList();
+            //ingsX.AddWithNoSideEffects();
+
+            //var best3 = ingsX.GetConcreteIngredients().Take(5).ToList();
+
+            //ingsX.AddMixed();
+            //var best4 =
+            //    ingsX.GetConcreteIngredients()
+            //        .GroupBy(i => i.MaxProfit.Item1)
+            //        .Select(g => new {profit = g.Key, list = g.Distinct().ToList()})
+            //        .ToList();
+
+            //ConcreteIngredient bestest = best4[0].list[0];
+            //var huh = String.Join(Environment.NewLine, bestest.DerivedFrom.GetOperations());
+            //var heh = String.Join(Environment.NewLine, (IEnumerable<Effect>) bestest.Effects);
+
+            //var hoho = huh + Environment.NewLine + heh;
+            //;
 
 
             //var mixe = new List<IngredientWithPotential>();
@@ -116,7 +129,7 @@ namespace BigPharmaAid
         {
             foreach (IngredientWithPotential mainIngredient in ings)
             {
-                var mainPositiveTrees = mainIngredient.GetPositivEffectTrees().ToList();
+                var mainPositiveTrees = mainIngredient.GetPositiveEffectTrees().ToList();
 
                 // Find empty trees which can be filled with a positive tree.
                 foreach (EffectTree emptyTree in mainIngredient.GetemptyTrees())
@@ -124,7 +137,7 @@ namespace BigPharmaAid
                     foreach (IngredientWithPotential matchingIngredient in ings)
                     {
                         // Get positive effect trees which match the main ingredient's empty slots.
-                        var initial = matchingIngredient.GetPositivEffectTrees().Where(e => e.Slot == emptyTree.Slot);
+                        var initial = matchingIngredient.GetPositiveEffectTrees().Where(e => e.Slot == emptyTree.Slot);
 
                         // Now from those positive trees select effects which are active when any other
                         // effects are active from the main ingredient.

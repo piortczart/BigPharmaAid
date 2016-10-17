@@ -8,7 +8,7 @@ namespace BigPharmaAid.Ingredientz.Effects
 
         public override List<Effect> GetEffects()
         {
-            return new List<Effect> {Effect};
+            return new List<Effect> { Effect };
         }
 
         public override string ToString()

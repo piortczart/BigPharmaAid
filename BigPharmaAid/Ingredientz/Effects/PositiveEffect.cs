@@ -12,7 +12,7 @@ namespace BigPharmaAid.Ingredientz.Effects
 
         public override string ToString()
         {
-            return $"Effect: +{Name}";
+            return $"+{Name} ({Level})";
         }
     }
 }

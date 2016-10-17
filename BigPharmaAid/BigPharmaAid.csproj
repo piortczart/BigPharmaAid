@@ -50,7 +50,6 @@
     <Compile Include="Game01.cs" />
     <Compile Include="Game02.cs" />
     <Compile Include="Ingredientz\Catalyst.cs" />
-    <Compile Include="Ingredientz\ConcreteIngredient.cs" />
     <Compile Include="Ingredientz\Effects\Effect.cs" />
     <Compile Include="Ingredientz\Effects\EffectTree.cs" />
     <Compile Include="Ingredientz\Effects\EmptyEffect.cs" />

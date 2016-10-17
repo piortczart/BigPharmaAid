@@ -15,19 +15,20 @@ namespace BigPharmaAid
                 //
                 new IngredientWithPotential(
                     "Mellable Crystals",
+                    1,
                     new EffectTree[]
                     {
-                        new EmptyTree(),
+                        new EmptyEffectTree(),
                         new SideEffectTree
                         {
                             Effect = new SideEffect
                             {
                                 Name = "Sleepiness",
                                 ActiveRange = new IntRange(1, 13),
-                                IsRemovable = true,
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
-                        new EmptyTree(),
+                        new EmptyEffectTree(),
                         new PositiveEffectTree
                         {
                             Effects = new List<PositiveEffect>
@@ -52,19 +53,20 @@ namespace BigPharmaAid
                 //
                 new IngredientWithPotential(
                     "Yupoxin",
+                    1,
                     new EffectTree[]
                     {
-                        new EmptyTree(),
+                        new EmptyEffectTree(),
                         new SideEffectTree
                         {
                             Effect = new SideEffect
                             {
                                 Name = "Blood Pressure",
                                 ActiveRange = new IntRange(8, 16),
-                                IsRemovable = false,
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
-                        new EmptyTree(),
+                        new EmptyEffectTree(),
                         new PositiveEffectTree
                         {
                             Effects = new List<PositiveEffect>
@@ -95,6 +97,7 @@ namespace BigPharmaAid
                 //
                 new IngredientWithPotential(
                     "Moist Grub Grub (Bofon Steam)",
+                    1,
                     new EffectTree[]
                     {
                         new PositiveEffectTree
@@ -122,17 +125,18 @@ namespace BigPharmaAid
                             {
                                 Name = "Sleepiness",
                                 ActiveRange = new IntRange(1, 13),
-                                IsRemovable = true,
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
-                        new EmptyTree(),
-                        new EmptyTree()
+                        new EmptyEffectTree(),
+                        new EmptyEffectTree()
                     }),
                 //
                 // Fourth (Yellow)
                 //
                 new IngredientWithPotential(
                     "Reacted Liquid",
+                    1,
                     new EffectTree[]
                     {
                         new SideEffectTree
@@ -141,27 +145,25 @@ namespace BigPharmaAid
                             {
                                 Name = "Narrows Pupils",
                                 ActiveRange = new IntRange(1, 8),
-                                IsRemovable = false,
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
                         new SideEffectTree
                         {
-                            Effect = new SideEffect
+                            Effect = new SideEffect(Catalyst.TwoDots)
                             {
                                 Name = "Blurs Vision",
                                 ActiveRange = new IntRange(3, 11),
-                                IsRemovable = true,
-                                Catalyst = Catalyst.TwoDots
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
                         new SideEffectTree
                         {
-                            Effect = new SideEffect
+                            Effect = new SideEffect(Catalyst.ThreeDots)
                             {
                                 Name = "Induces Vomiting",
                                 ActiveRange = new IntRange(1, 12),
-                                IsRemovable = true,
-                                Catalyst = Catalyst.ThreeDots,
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
                         new PositiveEffectTree
@@ -188,19 +190,20 @@ namespace BigPharmaAid
                 //
                 new IngredientWithPotential(
                     "Sour Pangsat",
+                    1,
                     new EffectTree[]
                     {
-                        new EmptyTree(),
+                        new EmptyEffectTree(),
                         new SideEffectTree
                         {
                             Effect = new SideEffect
                             {
                                 Name = "Inflames Skin",
                                 ActiveRange = new IntRange(10, 18),
-                                IsRemovable = false,
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
-                        new EmptyTree(),
+                        new EmptyEffectTree(),
                         new PositiveEffectTree
                         {
                             Effects = new List<PositiveEffect>
@@ -219,6 +222,7 @@ namespace BigPharmaAid
                 //
                 new IngredientWithPotential(
                     "Lipocide Tincture (Cyan Bottle)",
+                    1,
                     new EffectTree[]
                     {
                         new SideEffectTree
@@ -227,11 +231,11 @@ namespace BigPharmaAid
                             {
                                 Name = "Causes Constipation",
                                 ActiveRange = new IntRange(3, 11),
-                                IsRemovable = true,
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
-                        new EmptyTree(),
-                        new EmptyTree(),
+                        new EmptyEffectTree(),
+                        new EmptyEffectTree(),
                         new PositiveEffectTree
                         {
                             Effects = new List<PositiveEffect>
@@ -248,6 +252,7 @@ namespace BigPharmaAid
                     }),
                 new IngredientWithPotential(
                     "Poo",
+                    1,
                     new EffectTree[]
                     {
                         new SideEffectTree
@@ -255,7 +260,7 @@ namespace BigPharmaAid
                             Effect = new SideEffect
                             {
                                 Name = "Dries Mouth",
-                                IsRemovable = false
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
                         new PositiveEffectTree
@@ -278,11 +283,10 @@ namespace BigPharmaAid
                         },
                         new SideEffectTree
                         {
-                            Effect = new SideEffect
+                            Effect = new SideEffect(Catalyst.TwoDots)
                             {
                                 Name = "Anxiety",
-                                Catalyst = Catalyst.TwoDots,
-                                IsRemovable = true
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         },
                         new SideEffectTree
@@ -290,7 +294,7 @@ namespace BigPharmaAid
                             Effect = new SideEffect
                             {
                                 Name = "Headaches",
-                                IsRemovable = false
+                                EffectRemoval = new EffectRemoval(new IntRange(5,10))
                             }
                         }
                     }),
