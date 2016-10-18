@@ -21,13 +21,25 @@ namespace BigPharmaAid
             //        Do the mixing of everything. Now there is a concrete with mixed in Catalyst?
             //        Make concretes from concretes?
 
-            var ings = new Ingredients(Game02.GetIngredients());
-
-            ings.AddWithNoSideEffects();
-
+            var ings = new Ingredients(Game03.GetIngredients());
 
             ings.AddPossibleTransformations();
+            ings.AddPossibleTransformations();
+            ings.AddMixed();
+            ings.AddPossibleTransformations();
+            //ings.AddMixed();
 
+            //ings.AddWithNoSideEffects();
+
+            //ings.AddPossibleTransformations();
+
+            var ordered = ings.GetMostLucrative();
+
+            var ttt = ordered.GroupBy(i => i.Balance).Select(x => new {k = x.Key, l = x.ToList()}).ToList();
+
+
+            var best = ings.GetMostLucrative(4);
+            var bestest = best.First();
             ;
 
             ings.AddMixed();

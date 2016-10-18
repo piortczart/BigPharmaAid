@@ -20,11 +20,12 @@
         public SideEffect(Catalyst catalyst = Catalyst.None) : base(0)
         {
             Catalyst = catalyst;
+            EffectRemoval = EffectRemoval.Impossible;
         }
 
         public override string ToString()
         {
-            return $"Effect: -{Name}";
+            return $"Effect: -{Type}";
         }
     }
 }

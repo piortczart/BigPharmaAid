@@ -4,7 +4,7 @@
     {
         public int Level { get; }
         public IntRange ActiveRange { get; set; }
-        public string Name { get; set; }
+        public EffectTypes Type { get; set; }
         public int Slot { get; private set; }
 
         public Effect(int level)

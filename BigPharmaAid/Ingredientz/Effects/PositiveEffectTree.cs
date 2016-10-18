@@ -14,7 +14,7 @@ namespace BigPharmaAid.Ingredientz.Effects
 
         public override string ToString()
         {
-            return $"PositiveTree: {Effects[0].Name}, (...)";
+            return $"PositiveTree: {Effects[0].Type}, (...)";
         }
     }
 }

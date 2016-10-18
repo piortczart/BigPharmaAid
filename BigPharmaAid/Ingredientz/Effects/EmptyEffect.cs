@@ -4,7 +4,7 @@ namespace BigPharmaAid.Ingredientz.Effects
     {
         public EmptyEffect() : base(0)
         {
-            Name = "Empty";
+            Type = BigPharmaAid.EffectTypes.Empty;
         }
 
         public override string ToString()

@@ -10,14 +10,18 @@ namespace BigPharmaAid.Ingredientz
         public IngredientOperations Operations { get; }
         public EffectTree[] EffectTreesPossible { get; }
         public int[] CurrentEffectLevels { get; }
-        public Effect[] CurrentEffects => CurrentEffectLevels.Select((l, i) => EffectTreesPossible[i].GetEffects()[l]).ToArray();
+
+        public Effect[] CurrentEffects
+            => CurrentEffectLevels.Select((l, i) => EffectTreesPossible[i].GetEffects()[l]).ToArray();
+
         public string Name { get; }
-        public int Level { get; private set; }
+        public int Level { get; }
+        public int BaseCost { get; }
 
-        public int Profit => GetPositiveEffects().Sum(e => e.Profit);
-        public int Balance => GetPositiveEffects().Sum(e => e.Profit) - Operations.Cost;
+        public int Profit => GetPositiveEffects().Where(e => e.ActiveRange.Contains(Level)).Sum(e => e.Profit);
+        public int Balance => Profit - Operations.Cost - BaseCost;
 
-        public IngredientWithPotential(string name, int startingLevel, EffectTree[] effectTrees,
+        public IngredientWithPotential(string name, int startingLevel, int baseCost, EffectTree[] effectTrees,
             int[] currentEffectlevels = null, IngredientOperations operations = null)
         {
             if (effectTrees.Length != 4)
@@ -26,6 +30,7 @@ namespace BigPharmaAid.Ingredientz
             }
 
             Level = startingLevel;
+            BaseCost = baseCost;
             Name = name;
             Operations = operations ?? new IngredientOperations(null);
 
@@ -37,7 +42,7 @@ namespace BigPharmaAid.Ingredientz
 
             // Current effects are the actual effects which this ingredient has right now.
             // At start it has the first effects from all trees.
-            CurrentEffectLevels = currentEffectlevels ?? new[] { 0, 0, 0, 0 };
+            CurrentEffectLevels = currentEffectlevels ?? new[] {0, 0, 0, 0};
         }
 
         public IEnumerable<IngredientWithPotential> GetPossibleTransformations(bool includeThis = true)
@@ -47,11 +52,11 @@ namespace BigPharmaAid.Ingredientz
                 yield return this;
             }
 
-            foreach (var immediateResult in GetPossibleImmediateTransformations())
+            foreach (var immediateResult in GetPossibleImmediateUpgrades().ToList())
             {
                 yield return immediateResult;
 
-                var nestedResults = immediateResult.GetPossibleImmediateTransformations();
+                var nestedResults = immediateResult.GetPossibleImmediateUpgrades().ToList();
                 foreach (var nestedResult in nestedResults)
                 {
                     yield return nestedResult;
@@ -75,26 +80,94 @@ namespace BigPharmaAid.Ingredientz
             return levelChange;
         }
 
-        public IEnumerable<IngredientWithPotential> GetPossibleImmediateTransformations()
+        public bool HasCatalyst(Catalyst catalyst)
         {
+            foreach (SideEffect sideEffect in GetSideEffects())
+            {
+                if (sideEffect.Catalyst == catalyst)
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public IEnumerable<IngredientWithPotential> GetPossibleImmediateUpgrades()
+        {
+            // ONLY POSITIVE EFFECTS CAN BE TRANSFORMED (UPGRADED)
             for (int i = 0; i < EffectTreesPossible.Length; i++)
             {
-                var possibleEffect = EffectTreesPossible[i].GetEffects().Skip(CurrentEffectLevels[i] + 1).FirstOrDefault();
+                Effect currentEffect = CurrentEffects[i];
+
+                Effect possibleEffect =
+                    EffectTreesPossible[i].GetEffects().Skip(CurrentEffectLevels[i] + 1).FirstOrDefault();
                 // Are there any options to improve at this index?
                 if (possibleEffect != null)
                 {
-                    int[] newEffectLevels = new int[CurrentEffectLevels.Length];
-                    CurrentEffectLevels.CopyTo(newEffectLevels, 0);
-                    newEffectLevels[i]++;
-
-                    // Calculate how much the level will change to meet the desired effect activity.
-                    int levelChange = GetLevelChangeToAttain(Level, possibleEffect.ActiveRange);
-
                     var newOperations = new IngredientOperations(Operations);
-                    newOperations.Add(IngredientOperation.GetLevelChange(levelChange));
 
-                    yield return new IngredientWithPotential(Name, Level + levelChange, EffectTreesPossible, newEffectLevels, newOperations);
-                };
+                    PositiveEffect currentPositive = currentEffect as PositiveEffect;
+                    if (currentPositive != null)
+                    {
+                        EffectUpgradeRequirement requirement = currentPositive.Requirement;
+
+                        // It is not known how to update this (yet).
+                        if (requirement == EffectUpgradeRequirement.Unknown)
+                        {
+                            continue;
+                        }
+
+                        // We don't have the required catalyst?
+                        if (requirement.Catalyst != Catalyst.None && !HasCatalyst(requirement.Catalyst))
+                        {
+                            continue;
+                        }
+
+                        int currentLevel = Level;
+
+                        // The concentration might need a change in order to be upgraded.
+                        int levelChangeUno = GetLevelChangeToAttain(currentLevel, requirement.Concentration);
+                        if (levelChangeUno != 0)
+                        {
+                            newOperations.Add(IngredientOperation.GetLevelChange(levelChangeUno));
+                        }
+
+                        currentLevel += levelChangeUno;
+
+                        // The upgrade process changes the concentration.
+                        int levelAfterUpgrade = requirement.Machine.ChangeLevel(currentLevel);
+                        int levelChangeDos = levelAfterUpgrade - currentLevel;
+                        currentLevel = levelAfterUpgrade;
+                        if (levelChangeDos != 0)
+                        {
+                            newOperations.Add(IngredientOperation.GetLevelChange(levelChangeDos, requirement.Machine));
+                        }
+
+                        // Update the new effect level (of the selected effect)
+                        int[] newEffectLevels = CurrentEffectLevels.ToArray();
+                        newEffectLevels[i]++;
+
+                        // UPGRADE DONE.
+
+                        // This is an iupdated ingredient which might not have the proper concentration
+                        // for the upgraded effect to be active.
+                        yield return
+                            new IngredientWithPotential(Name, currentLevel, BaseCost, EffectTreesPossible,
+                                newEffectLevels, newOperations);
+
+                        // Change the concentration to acctivate the upgraded effect.
+                        int levelChangeTres = GetLevelChangeToAttain(currentLevel, possibleEffect.ActiveRange);
+                        if (levelChangeTres != 0)
+                        {
+                            newOperations.Add(IngredientOperation.GetLevelChange(levelChangeTres));
+                            currentLevel += levelChangeTres;
+
+                            yield return
+                                new IngredientWithPotential(Name, currentLevel, BaseCost,
+                                    EffectTreesPossible, newEffectLevels, newOperations);
+                        }
+                    }
+                }
             }
         }
 
@@ -112,10 +185,12 @@ namespace BigPharmaAid.Ingredientz
         {
             return EffectTreesPossible.Where(t => t is PositiveEffectTree).Cast<PositiveEffectTree>();
         }
+
         public IEnumerable<SideEffect> GetSideEffects()
         {
             return CurrentEffects.Where(t => t is SideEffect).Cast<SideEffect>();
         }
+
         public IEnumerable<SideEffectTree> GetSideEffectTrees()
         {
             return EffectTreesPossible.Where(t => t is SideEffectTree).Cast<SideEffectTree>();
@@ -126,6 +201,7 @@ namespace BigPharmaAid.Ingredientz
             return new IngredientWithPotential(
                 Name,
                 newLevel,
+                BaseCost,
                 EffectTreesPossible.ToArray(),
                 CurrentEffectLevels.ToArray(),
                 new IngredientOperations(Operations, operation));
@@ -139,7 +215,7 @@ namespace BigPharmaAid.Ingredientz
                 return this;
             }
 
-            var result = Clone(IngredientOperation.GetMixing(new List<IngredientWithPotential> { this, other }), Level);
+            var result = Clone(IngredientOperation.GetMixing(new List<IngredientWithPotential> {this, other}), Level);
             for (int i = 0; i < result.EffectTreesPossible.Length; i++)
             {
                 if (result.EffectTreesPossible[i] is EmptyEffectTree)
@@ -194,27 +270,35 @@ namespace BigPharmaAid.Ingredientz
                         {
                             var sideEffectremoved = (EffectTreesPossible[2] as SideEffectTree).Effect;
                             int localLevel = Level + levelsChange0 + levelsChange1;
-                            levelsChange2 = GetLevelChangeToAttain(localLevel, sideEffectremoved.EffectRemoval.RemovalRange);
+                            levelsChange2 = GetLevelChangeToAttain(localLevel,
+                                sideEffectremoved.EffectRemoval.RemovalRange);
                         }
 
                         for (int l = 0; l < (EffectTreesPossible[3] is SideEffectTree ? 2 : 1); l++)
                         {
                             var eff3 = l == 0 ? EffectTreesPossible[3] : new EmptyEffectTree();
-                            if (i == 0 && j == 0 && k == 0 && l == 0) { continue; }
+                            if (i == 0 && j == 0 && k == 0 && l == 0)
+                            {
+                                continue;
+                            }
                             int levelsChange3 = 0;
                             if (l == 1)
                             {
                                 var sideEffectremoved = (EffectTreesPossible[3] as SideEffectTree).Effect;
                                 int localLevel = Level + levelsChange0 + levelsChange1 + levelsChange2;
-                                levelsChange3 = GetLevelChangeToAttain(localLevel, sideEffectremoved.EffectRemoval.RemovalRange);
+                                levelsChange3 = GetLevelChangeToAttain(localLevel,
+                                    sideEffectremoved.EffectRemoval.RemovalRange);
                             }
 
                             var finalLevel = Level + levelsChange0 + levelsChange1 + levelsChange2 + levelsChange3;
                             effectsRemoved = i + j + k + l;
 
-                            List<int> levelsChange = new[] { levelsChange0, levelsChange1, levelsChange2, levelsChange3 }.Where(lol=>lol!= 0).ToList();
+                            List<int> levelsChange =
+                                new[] {levelsChange0, levelsChange1, levelsChange2, levelsChange3}.Where(lol => lol != 0)
+                                    .ToList();
 
-                            var result = Clone(IngredientOperation.GetSideEffectRemoval(levelsChange, effectsRemoved), finalLevel);
+                            var result = Clone(IngredientOperation.GetSideEffectRemoval(levelsChange, effectsRemoved),
+                                finalLevel);
                             result.EffectTreesPossible[0] = eff0;
                             result.EffectTreesPossible[1] = eff1;
                             result.EffectTreesPossible[2] = eff2;
@@ -225,12 +309,11 @@ namespace BigPharmaAid.Ingredientz
                     }
                 }
             }
-
         }
 
         public override string ToString()
         {
-            return $"IWP: {Name} ({String.Join(",", (IEnumerable<Effect>)CurrentEffects)})";
+            return $"IWP: {Name} ({Balance}({Profit}), {String.Join(",", (IEnumerable<Effect>) CurrentEffects)})";
         }
     }
 }
