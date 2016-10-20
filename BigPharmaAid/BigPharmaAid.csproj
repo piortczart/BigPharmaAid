@@ -48,11 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Constants.cs" />
-    <Compile Include="Game01.cs" />
-    <Compile Include="Game03.cs" />
-    <Compile Include="Game02.cs" />
     <Compile Include="Ingredientz\Catalyst.cs" />
     <Compile Include="Ingredientz\Effects\Effect.cs" />
+    <Compile Include="Ingredientz\Effects\EffectRemoval.cs" />
     <Compile Include="Ingredientz\Effects\EffectTree.cs" />
     <Compile Include="Ingredientz\Effects\EffectUpgradeRequirement.cs" />
     <Compile Include="Ingredientz\Effects\EmptyEffect.cs" />
@@ -61,7 +59,8 @@
     <Compile Include="Ingredientz\IngredientOperation.cs" />
     <Compile Include="Ingredientz\IngredientOperations.cs" />
     <Compile Include="Ingredientz\Ingredients.cs" />
-    <Compile Include="Ingredientz\IngredientWithPotential.cs" />
+    <Compile Include="Ingredientz\Ingredient.cs" />
+    <Compile Include="Ingredientz\IngredientsInGame.cs" />
     <Compile Include="IntRange.cs" />
     <Compile Include="Ingredientz\OperationType.cs" />
     <Compile Include="Ingredientz\Effects\PositiveEffect.cs" />

@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace BigPharmaAid.Ingredientz
 {
-    class IngredientOperations
+    public class IngredientOperations : IEquatable<IngredientOperations>
     {
         public List<IngredientOperation> Operations { get; }
 
@@ -22,6 +22,12 @@ namespace BigPharmaAid.Ingredientz
         public IngredientOperations(IngredientOperations initial = null)
         {
             Operations = new List<IngredientOperation>(initial?.Operations ?? new List<IngredientOperation>());
+        }
+
+        public bool Equals(IngredientOperations other)
+        {
+            return Operations.Count == other.Operations.Count &&
+                   Operations.Select((op, i) => other.Operations[i].Equals(op)).All(r => r);
         }
 
         public override string ToString()

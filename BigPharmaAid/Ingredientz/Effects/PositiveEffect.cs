@@ -1,6 +1,6 @@
 namespace BigPharmaAid.Ingredientz.Effects
 {
-    class PositiveEffect : Effect
+    public class PositiveEffect : Effect
     {
         public EffectUpgradeRequirement Requirement { get; }
         public int Profit { get; set; }

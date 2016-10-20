@@ -2,7 +2,7 @@
 
 namespace BigPharmaAid.Ingredientz.Effects
 {
-    class SideEffectTree : EffectTree
+    public class SideEffectTree : EffectTree
     {
         public SideEffect Effect { get; set; }
 

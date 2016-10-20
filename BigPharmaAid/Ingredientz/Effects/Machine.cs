@@ -2,7 +2,7 @@ using System;
 
 namespace BigPharmaAid.Ingredientz.Effects
 {
-    class Machine
+    public class Machine
     {
         public static readonly Machine Agglomerator = new Machine("Agglomerator", i => i + 3);
         public static readonly Machine Ioniser = new Machine("Ioniser", i => i - 3);

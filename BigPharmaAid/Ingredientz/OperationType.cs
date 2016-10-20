@@ -1,6 +1,6 @@
 namespace BigPharmaAid.Ingredientz
 {
-    enum OperationType
+    public enum OperationType
     {
         Mix,
         RemoveSideEffects,

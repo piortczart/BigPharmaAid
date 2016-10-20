@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace BigPharmaAid.Ingredientz.Effects
 {
-    abstract class EffectTree
+    public abstract class EffectTree
     {
         public int Slot { get; private set; }
 

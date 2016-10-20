@@ -1,6 +1,6 @@
 namespace BigPharmaAid.Ingredientz.Effects
 {
-    class EffectUpgradeRequirement
+    public class EffectUpgradeRequirement
     {
         public static readonly EffectUpgradeRequirement Unknown = null;
         public IntRange Concentration { get; }

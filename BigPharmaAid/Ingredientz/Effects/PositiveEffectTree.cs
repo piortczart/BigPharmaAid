@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace BigPharmaAid.Ingredientz.Effects
 {
-    class PositiveEffectTree : EffectTree
+    public class PositiveEffectTree : EffectTree
     {
         public List<PositiveEffect> Effects { get; set; }
 

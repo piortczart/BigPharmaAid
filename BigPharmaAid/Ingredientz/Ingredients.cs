@@ -5,22 +5,46 @@ namespace BigPharmaAid.Ingredientz
 {
     class Ingredients
     {
-        public List<IngredientWithPotential> IngredientsBla { get; }
+        public List<Ingredient> IngredientsBla { get; }
 
-        public Ingredients(IEnumerable<IngredientWithPotential> initial)
+        public Ingredients(IEnumerable<Ingredient> initial)
         {
-            IngredientsBla = new List<IngredientWithPotential>(initial);
+            IngredientsBla = new List<Ingredient>(initial);
         }
 
-        private void AddNonExisting(IEnumerable<IngredientWithPotential> stuff)
+        private void AddNonExisting(IEnumerable<Ingredient> stuff)
         {
-            foreach (IngredientWithPotential ingredientWithPotential in stuff)
+            foreach (Ingredient ingredientWithPotential in stuff)
             {
                 AddNonExisting(ingredientWithPotential);
             }
         }
 
-        private void AddNonExisting(IngredientWithPotential suspect)
+        public void Slim()
+        {
+            List<Ingredient> dupa = IngredientsBla.ToList();
+
+            for (int i = 0; i < dupa.Count; i++)
+            {
+                for (int j = i + 1; i < dupa.Count; i++)
+                {
+                    var ingredient = dupa[i];
+                    var x = dupa[j];
+
+                    if (ReferenceEquals(ingredient, x))
+                    {
+                        continue;
+                    }
+
+                    if (ingredient.Equals(x))
+                    {
+                        IngredientsBla.Remove(x);
+                    }
+                }
+            }
+        }
+
+        private void AddNonExisting(Ingredient suspect)
         {
             //if (!IngredientsBla.Any(ex =>
             //    ex.Level == suspect.Level &&
@@ -36,7 +60,7 @@ namespace BigPharmaAid.Ingredientz
             IngredientsBla.Add(suspect);
         }
 
-        public List<IngredientWithPotential> GetMostLucrative(int count = 10000)
+        public List<Ingredient> GetMostLucrative(int count = 10000)
         {
             return IngredientsBla.OrderByDescending(i => i.Balance).Take(count).ToList();
         }

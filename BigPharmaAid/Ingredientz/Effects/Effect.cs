@@ -1,6 +1,6 @@
 ﻿namespace BigPharmaAid.Ingredientz.Effects
 {
-    abstract class Effect
+    public abstract class Effect
     {
         public int Level { get; }
         public IntRange ActiveRange { get; set; }

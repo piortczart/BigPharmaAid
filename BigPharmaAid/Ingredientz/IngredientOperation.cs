@@ -5,9 +5,9 @@ using BigPharmaAid.Ingredientz.Effects;
 
 namespace BigPharmaAid.Ingredientz
 {
-    class IngredientOperation
+    public class IngredientOperation : IEquatable<IngredientOperation>
     {
-        public List<IngredientWithPotential> Ingredients { get; private set; }
+        public List<Ingredient> Ingredients { get; private set; }
         public OperationType OperationType { get; private set; }
         public int Cost { get; private set; }
         public List<int> LevelChanges { get; private set; }
@@ -31,7 +31,7 @@ namespace BigPharmaAid.Ingredientz
             };
         }
 
-        public static IngredientOperation GetMixing(List<IngredientWithPotential> ingredients)
+        public static IngredientOperation GetMixing(List<Ingredient> ingredients)
         {
             return new IngredientOperation
             {
@@ -54,6 +54,23 @@ namespace BigPharmaAid.Ingredientz
 
         private IngredientOperation()
         {
+        }
+
+        public bool Equals(IngredientOperation other)
+        {
+            if (other == null)
+            {
+                throw new ArgumentNullException(nameof(other));
+            }
+
+            bool x = (Ingredients == null && other.Ingredients == null) ||
+                     ((Ingredients != null && other.Ingredients != null) &&
+                      Ingredients.Count == other.Ingredients.Count &&
+                      Ingredients.Select((ing, i) => other.Ingredients[i] != ing).Any(r => r));
+
+            return OperationType == other.OperationType &&
+                   Machine == other.Machine &&
+                   Cost == other.Cost && x;
         }
 
         public override string ToString()

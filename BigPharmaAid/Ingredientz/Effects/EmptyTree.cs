@@ -2,9 +2,15 @@
 
 namespace BigPharmaAid.Ingredientz.Effects
 {
-    class EmptyEffectTree : EffectTree
+    public class EmptyEffectTree : EffectTree
     {
+        public static readonly EmptyEffectTree Empty = new EmptyEffectTree();
+
         readonly List<Effect> _effects = new List<Effect> {new EmptyEffect()};
+
+        private EmptyEffectTree()
+        {
+        }
 
         public override List<Effect> GetEffects()
         {

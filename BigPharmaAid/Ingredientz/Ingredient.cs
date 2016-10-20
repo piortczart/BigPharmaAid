@@ -5,7 +5,7 @@ using BigPharmaAid.Ingredientz.Effects;
 
 namespace BigPharmaAid.Ingredientz
 {
-    class IngredientWithPotential
+    public class Ingredient : IEquatable<Ingredient>
     {
         public IngredientOperations Operations { get; }
         public EffectTree[] EffectTreesPossible { get; }
@@ -21,7 +21,7 @@ namespace BigPharmaAid.Ingredientz
         public int Profit => GetPositiveEffects().Where(e => e.ActiveRange.Contains(Level)).Sum(e => e.Profit);
         public int Balance => Profit - Operations.Cost - BaseCost;
 
-        public IngredientWithPotential(string name, int startingLevel, int baseCost, EffectTree[] effectTrees,
+        public Ingredient(string name, int startingLevel, int baseCost, EffectTree[] effectTrees,
             int[] currentEffectlevels = null, IngredientOperations operations = null)
         {
             if (effectTrees.Length != 4)
@@ -45,7 +45,7 @@ namespace BigPharmaAid.Ingredientz
             CurrentEffectLevels = currentEffectlevels ?? new[] {0, 0, 0, 0};
         }
 
-        public IEnumerable<IngredientWithPotential> GetPossibleTransformations(bool includeThis = true)
+        public IEnumerable<Ingredient> GetPossibleTransformations(bool includeThis = true)
         {
             if (includeThis)
             {
@@ -64,6 +64,9 @@ namespace BigPharmaAid.Ingredientz
             }
         }
 
+        /// <summary>
+        /// What is the minimal level change to attain the desired level range from the base level.
+        /// </summary>
         private static int GetLevelChangeToAttain(int baseLevel, IntRange desiredRange)
         {
             int levelChange = 0;
@@ -92,7 +95,7 @@ namespace BigPharmaAid.Ingredientz
             return false;
         }
 
-        public IEnumerable<IngredientWithPotential> GetPossibleImmediateUpgrades()
+        public IEnumerable<Ingredient> GetPossibleImmediateUpgrades()
         {
             // ONLY POSITIVE EFFECTS CAN BE TRANSFORMED (UPGRADED)
             for (int i = 0; i < EffectTreesPossible.Length; i++)
@@ -152,7 +155,7 @@ namespace BigPharmaAid.Ingredientz
                         // This is an iupdated ingredient which might not have the proper concentration
                         // for the upgraded effect to be active.
                         yield return
-                            new IngredientWithPotential(Name, currentLevel, BaseCost, EffectTreesPossible,
+                            new Ingredient(Name, currentLevel, BaseCost, EffectTreesPossible,
                                 newEffectLevels, newOperations);
 
                         // Change the concentration to acctivate the upgraded effect.
@@ -163,7 +166,7 @@ namespace BigPharmaAid.Ingredientz
                             currentLevel += levelChangeTres;
 
                             yield return
-                                new IngredientWithPotential(Name, currentLevel, BaseCost,
+                                new Ingredient(Name, currentLevel, BaseCost,
                                     EffectTreesPossible, newEffectLevels, newOperations);
                         }
                     }
@@ -196,9 +199,9 @@ namespace BigPharmaAid.Ingredientz
             return EffectTreesPossible.Where(t => t is SideEffectTree).Cast<SideEffectTree>();
         }
 
-        private IngredientWithPotential Clone(IngredientOperation operation, int newLevel)
+        public Ingredient Clone(IngredientOperation operation, int newLevel)
         {
-            return new IngredientWithPotential(
+            return new Ingredient(
                 Name,
                 newLevel,
                 BaseCost,
@@ -207,7 +210,7 @@ namespace BigPharmaAid.Ingredientz
                 new IngredientOperations(Operations, operation));
         }
 
-        public IngredientWithPotential Mix(IngredientWithPotential other)
+        public Ingredient Mix(Ingredient other)
         {
             // The base has no free slots? Result will be the base.
             if (!EffectTreesPossible.Any(e => e is EmptyEffectTree))
@@ -215,7 +218,7 @@ namespace BigPharmaAid.Ingredientz
                 return this;
             }
 
-            var result = Clone(IngredientOperation.GetMixing(new List<IngredientWithPotential> {this, other}), Level);
+            var result = Clone(IngredientOperation.GetMixing(new List<Ingredient> {this, other}), Level);
             for (int i = 0; i < result.EffectTreesPossible.Length; i++)
             {
                 if (result.EffectTreesPossible[i] is EmptyEffectTree)
@@ -226,7 +229,7 @@ namespace BigPharmaAid.Ingredientz
             return result;
         }
 
-        public IEnumerable<IngredientWithPotential> GetWithoutSideEffects(bool includeThis)
+        public IEnumerable<Ingredient> GetWithoutSideEffects(bool includeThis)
         {
             if (includeThis)
             {
@@ -242,7 +245,7 @@ namespace BigPharmaAid.Ingredientz
             int effectsRemoved;
             for (int i = 0; i < (EffectTreesPossible[0] is SideEffectTree ? 2 : 1); i++)
             {
-                var eff0 = i == 0 ? EffectTreesPossible[0] : new EmptyEffectTree();
+                var eff0 = i == 0 ? EffectTreesPossible[0] : EmptyEffectTree.Empty;
                 int levelsChange0 = 0;
                 if (i == 1)
                 {
@@ -253,7 +256,7 @@ namespace BigPharmaAid.Ingredientz
 
                 for (int j = 0; j < (EffectTreesPossible[1] is SideEffectTree ? 2 : 1); j++)
                 {
-                    var eff1 = j == 0 ? EffectTreesPossible[1] : new EmptyEffectTree();
+                    var eff1 = j == 0 ? EffectTreesPossible[1] : EmptyEffectTree.Empty;
                     int levelsChange1 = 0;
                     if (j == 1)
                     {
@@ -264,7 +267,7 @@ namespace BigPharmaAid.Ingredientz
 
                     for (int k = 0; k < (EffectTreesPossible[2] is SideEffectTree ? 2 : 1); k++)
                     {
-                        var eff2 = k == 0 ? EffectTreesPossible[2] : new EmptyEffectTree();
+                        var eff2 = k == 0 ? EffectTreesPossible[2] : EmptyEffectTree.Empty;
                         int levelsChange2 = 0;
                         if (k == 1)
                         {
@@ -276,7 +279,7 @@ namespace BigPharmaAid.Ingredientz
 
                         for (int l = 0; l < (EffectTreesPossible[3] is SideEffectTree ? 2 : 1); l++)
                         {
-                            var eff3 = l == 0 ? EffectTreesPossible[3] : new EmptyEffectTree();
+                            var eff3 = l == 0 ? EffectTreesPossible[3] : EmptyEffectTree.Empty;
                             if (i == 0 && j == 0 && k == 0 && l == 0)
                             {
                                 continue;
@@ -309,6 +312,22 @@ namespace BigPharmaAid.Ingredientz
                     }
                 }
             }
+        }
+
+        public bool Equals(Ingredient other)
+        {
+            if (other == null)
+            {
+                throw new ArgumentNullException(nameof(other));
+            }
+
+            return
+                EffectTreesPossible[0] == other.EffectTreesPossible[0] &&
+                EffectTreesPossible[1] == other.EffectTreesPossible[1] &&
+                EffectTreesPossible[2] == other.EffectTreesPossible[2] &&
+                EffectTreesPossible[3] == other.EffectTreesPossible[3] &&
+                Operations.Equals(other.Operations) &&
+                Level == other.Level;
         }
 
         public override string ToString()

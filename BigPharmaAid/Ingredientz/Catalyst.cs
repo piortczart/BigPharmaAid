@@ -1,6 +1,6 @@
 ﻿namespace BigPharmaAid.Ingredientz
 {
-    enum Catalyst
+    public enum Catalyst
     {
         None,
         TwoDots,
